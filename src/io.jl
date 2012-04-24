@@ -1,4 +1,22 @@
 #!/usr/bin/env julia
+
+function write_xyz(filename, atoms::Atoms)
+    fh = open(filename, "w")
+    
+    N = length(atoms)
+
+    write(fh, "$N\n")
+    write(fh, "$atoms\n")
+
+    for i = 1:N
+        symbol = element_properties[atoms.elements[i]].symbol
+        pos = atoms.positions[i,:]
+        write(fh, "$symbol $(pos[1]) $(pos[2]) $(pos[3])\n")
+    end
+
+    close(fh)
+end
+
 function read_xyz(filename)
     fh = open(filename, "r")
 
@@ -13,15 +31,9 @@ function read_xyz(filename)
         elements[i] = element_properties[fields[1]].number
         positions[i,:] = map(float, fields[2:])
     end
+
+    close(fh)
     
     Atoms(elements, positions)
 end
 
-#let
-#    load("lennard-jones.jl")
-#    atoms = read_xyz("auh.xyz")
-#    println(atoms)
-#    atoms.calculator = lennard_jones_calculator(1.0, 1.0)
-#    U = potential_energy(atoms)
-#    println(U)
-#end
